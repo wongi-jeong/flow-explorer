@@ -1,0 +1,12 @@
+{
+  "name": "flow-explorer",
+  "owner": { "name": "wongi-jeong" },
+  "description": "데이터 흐름 탐색기 플러그인",
+  "plugins": [
+    {
+      "name": "flow-explorer",
+      "source": "./",
+      "description": "프로젝트 구성과 요청·응답 흐름을 단계별로 재생하는 데이터 흐름 탐색기(HTML 파일 하나)를 만든다"
+    }
+  ]
+}
