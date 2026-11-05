@@ -1,0 +1,15 @@
+{
+  "title": "웹 쇼핑몰 데이터 흐름",
+  "subtitle": "구성도 4개 · 흐름 8개 · 86단계",
+  "langs": [
+    "ko",
+    "ja"
+  ],
+  "topology": "topology.js",
+  "scripts": [
+    "flows.js",
+    "groups.js",
+    "packets.js",
+    "ja.js"
+  ]
+}

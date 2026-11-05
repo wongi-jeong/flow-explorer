@@ -162,6 +162,8 @@ html[lang="ja"] .brand h1 { font-size:21px; letter-spacing:.02em; }   /* 전각 
 .ftabs .n { display:inline-grid; place-items:center; min-width:19px; height:17px; padding:0 5px; border-radius:9px; font-size:10.5px; background:var(--rule-2); color:var(--muted); }
 .ftabs button.on { color:var(--ink-strong); box-shadow:inset 0 -2.5px 0 var(--btn); }
 .ftabs button.on .n { background:var(--btn); color:#fff; }
+.ftabs.tight button { padding:8px 2px; letter-spacing:0; }
+.ftabs.tight .n { display:none; }
 #list { padding:0 18px 14px; }
 .sc { border-bottom:1px solid var(--rule); }
 .sc > button { display:grid; grid-template-columns:18px 1fr auto 14px; gap:12px; align-items:center; width:100%; padding:12px 10px; border:0; background:none; cursor:pointer; text-align:left; border-radius:2px; }
@@ -1062,7 +1064,7 @@ function tagText(s) {
   if (c && s.lab.indexOf(c[1]) !== 0) return c[1] + " · " + s.lab;
   return s.lab;
 }
-// 말풍선 모양: "up"은 점 위, "side"는 점 오른쪽. maxW를 넘으면 글자를 줄인다
+// 말풍선 모양: "up"은 점 위, "side"는 점 오른쪽, "left"는 점 왼쪽. maxW를 넘으면 글자를 줄인다
 function tagLayout(mode, full, maxW) {
   var t = NET.tagTx;
   t.textContent = full;
@@ -1075,6 +1077,10 @@ function tagLayout(mode, full, maxW) {
     NET.tagBg.setAttribute("x", 14); NET.tagBg.setAttribute("y", -11);
     t.setAttribute("x", 14 + w / 2); t.setAttribute("y", 4.5);
     NET.tagTip.setAttribute("d", "M14.5 -5 L8 0 L14.5 5 Z");
+  } else if (mode === "left") {
+    NET.tagBg.setAttribute("x", -14 - w); NET.tagBg.setAttribute("y", -11);
+    t.setAttribute("x", -14 - w / 2); t.setAttribute("y", 4.5);
+    NET.tagTip.setAttribute("d", "M-14.5 -5 L-8 0 L-14.5 5 Z");
   } else {
     NET.tagBg.setAttribute("x", -w / 2); NET.tagBg.setAttribute("y", -40);
     t.setAttribute("x", 0); t.setAttribute("y", -24.5);
@@ -1101,7 +1107,13 @@ function settleTag(now) {
   var x = a[0] + (b[0] - a[0]) * r, y = a[1] + (b[1] - a[1]) * r;
   var vertical = Math.abs(b[1] - a[1]) > Math.abs(b[0] - a[0]);
   if (!now) NET.tag.classList.add("settle");
-  if (vertical) { tagLayout("side", NET.tagFull, 0); moveTag(x, y); }
+  if (vertical) {
+    // 선 오른쪽에 두면 보이는 칸(따라가는 중이면 카메라가 갈 곳) 밖으로 나갈 때만 왼쪽에 둔다
+    tagLayout("side", NET.tagFull, 0);
+    var w = +NET.tagBg.getAttribute("width"), v = st.follow && st.view === "net" ? camTarget() : vb;
+    if (x + 14 + w > v.x + v.w - 6 && x - 14 - w >= v.x + 6) tagLayout("left", NET.tagFull, 0);
+    moveTag(x, y);
+  }
   else { tagLayout("up", NET.tagFull, Math.max(120, lens[seg] - 24)); moveTag(x, y + 4); }
   NET.tag.classList.add("show");
   if (!now) setTimeout(function () { NET.tag.classList.remove("settle"); }, 450);
@@ -1402,6 +1414,13 @@ function renderTabs() {
     html += '<button type="button" role="tab" data-f="' + f[0] + '"' + (st.filter === f[0] ? ' class="on" aria-selected="true"' : "") + ">" + esc(ui(f[1])) + '<span class="n">' + n + "</span></button>";
   });
   box.innerHTML = html;
+  fitTabs();
+}
+// 탭이 칸보다 넓으면(묶음이 많거나 이름이 긴 언어) 숫자 배지를 숨겨 한 줄에 맞춘다
+function fitTabs() {
+  var box = $("ftabs");
+  box.classList.remove("tight");
+  if (box.scrollWidth > box.clientWidth + 1) box.classList.add("tight");
 }
 $("ftabs").addEventListener("click", function (e) {
   var b = e.target.closest("button[data-f]"); if (!b) return;
@@ -1727,7 +1746,8 @@ $("langMenu").addEventListener("keydown", function (e) {
 document.addEventListener("click", function (e) { if (!$("langMenu").hidden && !e.target.closest("#lang")) langOpen(false); });
 
 var rt = 0;
-window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { if (st.view === "seq") { SEQ.sc = -1; renderSeq(false); } else { st.camKey = ""; moveCam(false); } }, 150); });
+window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { fitTabs(); if (st.view === "seq") { SEQ.sc = -1; renderSeq(false); } else { st.camKey = ""; moveCam(false); } }, 150); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTabs);   // 글꼴이 들어오면 탭 너비가 바뀐다
 
 renderLangMenu();
 setLang(pickLang(), false);

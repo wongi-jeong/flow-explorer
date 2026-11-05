@@ -85,6 +85,8 @@ TOPO.web.sr = { browser:"사용자", proxy:":443" };         // 시퀀스 머리
 아이콘 종류(`iso[0]`): `rack`, `flat`, `db`, `laptop`, `doc`, `shield`, `funnel`, `gauge`, `archive`, `registry`, `padlock`, `toolbox`, `layers`
 표식(`iso[1]`, 선택): `key`, `lock`, `sparkle`, `code`, `arrows`, `branch`, `building`, `plug`, `check`, `bang`, `shield`, `gear`, `person`, `window`, `list`, `layers`, `down`, `gauge`, `keyhole`
 
+표식은 `rack`·`flat`·`db`(윗면), `laptop`(화면), `shield`(방패 안), `archive`(옆면, 없으면 `down`)에만 그려집니다. `doc`은 `gear`만 그리고, 나머지 아이콘은 정해진 무늬만 있어 표식을 쓰지 않습니다.
+
 노드가 많으면 별칭·아이콘·로고를 표로 모아 두고 반복문으로 노드에 넣어도 됩니다. 엔진은 결과로 생긴 노드 속성만 봅니다.
 
 ### LOGO
@@ -122,7 +124,7 @@ META = { key:"my-project", start:0, filters:[["all","전체"],["web","웹"]], fw
 | `fwIn` | `fw:IN`(같은 VM)인 단계의 설명. 없으면 "같은 VM 안의 통신이라 VM 방화벽을 지나지 않습니다." |
 | `inproc` | 같은 프로세스 안의 호출로 볼 패킷 프로토콜 목록. 없으면 `["JVM", "JDBC"]` |
 
-필터 탭은 묶음이 둘 이상일 때만 보입니다(`전체`와 구성도 하나뿐이면 감춤).
+필터 탭은 묶음이 둘 이상일 때만 보입니다(`전체`와 구성도 하나뿐이면 감춤). 탭이 칸보다 넓으면(묶음이 많거나 이름이 긴 언어) 흐름 수 배지를 숨겨 한 줄에 맞춥니다. 이름은 짧게 씁니다(예: `웹`, `배포`).
 
 ## 단계와 흐름
 
