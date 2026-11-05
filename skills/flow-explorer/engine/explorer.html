@@ -30,7 +30,7 @@
   --grid:rgba(16,94,84,.05);
   --ink:#1E2B2A; --ink-strong:#0E1918; --ink-2:#33433F; --muted:#566763; --faint:#7A8A86; --fainter:#A6B3AF;
   --tint:#DDEFEB; --btn:#0F766E;
-  --req:#F2B631; --req-ink:#855A00; --on-req:#2F2200;
+  --req:#EF6F4F; --req-ink:#A93A1B; --on-req:#2A0E06;
   --resp:#7656EE; --resp-ink:#5A3FCF;
   --accent:#0D8A7F; --seen:rgba(13,138,127,.34);
   --sel-bg:#E6F4F1; --sel-bd:#0D8A7F; --now:#E3A008;
@@ -39,9 +39,9 @@
   --iso-top:#FBFCFB; --iso-left:#E1E9E6; --iso-right:#C5D3CF; --iso-ln:#2B4541; --iso-gl:#0D8A7F; --iso-scr:#DCEFEA;
   --iso-top2:#EFF4F2; --iso-left2:#D1DDD9; --iso-right2:#B2C4BF; --iso-hl:rgba(255,255,255,.9); --iso-bay:#CBDAD5; --iso-glare:rgba(255,255,255,.55);
   --iso-sh1:rgba(14,40,36,.20);
-  --iso-led:#0D8A7F; --iso-pad:#EDF2F0; --iso-padln:#C7D3CF; --iso-sh:rgba(14,40,36,.10); --pad-q:rgba(242,182,49,.22); --pad-s:rgba(118,86,238,.18);
+  --iso-led:#0D8A7F; --iso-pad:#EDF2F0; --iso-padln:#C7D3CF; --iso-sh:rgba(14,40,36,.10); --pad-q:rgba(239,111,79,.22); --pad-s:rgba(118,86,238,.18);
   --shadow:rgba(14,40,36,.16);
-  --pulse-a:rgba(13,138,127,.45); --pulse-q:rgba(242,182,49,.55); --pulse-s:rgba(118,86,238,.5); --pulse-play:rgba(15,118,110,.45);
+  --pulse-a:rgba(13,138,127,.45); --pulse-q:rgba(239,111,79,.55); --pulse-s:rgba(118,86,238,.5); --pulse-play:rgba(15,118,110,.45);
   --font:"Iosevka", "FlowHangul", "FlowJapanese", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace;
 }
 /* 일본어 화면: 가나·한자는 일본어 글꼴로(한국어 글꼴의 한자는 모양이 다르다) */
@@ -53,7 +53,7 @@ html[lang="ja"] { --font:"Iosevka", "FlowJapanese", "FlowHangul", "Yu Gothic UI"
   --grid:rgba(110,200,185,.06);
   --ink:#C5D6D2; --ink-strong:#FFFFFF; --ink-2:#ABBEB9; --muted:#8BA19C; --faint:#6C837E; --fainter:#44605A;
   --tint:#173430; --btn:#0E7F75;
-  --req:#F5C24C; --req-ink:#FFD47A; --on-req:#221800;
+  --req:#FF8A6E; --req-ink:#FFB09C; --on-req:#2A0E06;
   --resp:#9076F2; --resp-ink:#B7A4F8;
   --accent:#2CCDB8; --seen:rgba(44,205,184,.38);
   --sel-bg:#14302B; --sel-bd:#2CCDB8; --now:#E3A008;
@@ -62,7 +62,7 @@ html[lang="ja"] { --font:"Iosevka", "FlowJapanese", "FlowHangul", "Yu Gothic UI"
   --iso-top:#22403B; --iso-left:#182E2A; --iso-right:#11221F; --iso-ln:#8ED1C5; --iso-gl:#D2F2EC; --iso-scr:#1B4740;
   --iso-top2:#1E3935; --iso-left2:#142824; --iso-right2:#0D1B19; --iso-hl:rgba(170,235,222,.42); --iso-bay:#0C1A18; --iso-glare:rgba(150,230,215,.2);
   --iso-sh1:rgba(0,0,0,.5);
-  --iso-led:#2CCDB8; --iso-pad:#111C1A; --iso-padln:#29433E; --iso-sh:rgba(0,0,0,.35); --pad-q:rgba(245,194,76,.20); --pad-s:rgba(144,118,242,.22);
+  --iso-led:#2CCDB8; --iso-pad:#111C1A; --iso-padln:#29433E; --iso-sh:rgba(0,0,0,.35); --pad-q:rgba(255,138,110,.20); --pad-s:rgba(144,118,242,.22);
   --shadow:rgba(0,0,0,.45);
 }
 
@@ -201,7 +201,7 @@ html[lang="ja"] .brand h1 { font-size:21px; letter-spacing:.02em; }   /* 전각 
 .pn { position:relative; z-index:1; display:inline-grid; place-items:center; width:19px; height:19px; border-radius:50%; background:var(--fainter); color:#fff; font-size:9.5px; font-weight:800; margin-top:1px; }
 .gr li.done .pn { background:var(--ok); }
 .gr li.cur { background:var(--tint); }
-/* 번호 원: 요청은 노랑, 응답은 보라로 꽉 채우고 숫자는 흰색 */
+/* 번호 원: 요청은 코랄, 응답은 보라로 꽉 채우고 숫자는 흰색 */
 .gr li.cur .pn { background:var(--req); border:0; color:#fff; }
 .gr li.cur.s .pn { background:var(--resp); }
 .gr li.cur.arrived .pn, .gr li.cur.s.arrived .pn { background:var(--ok); border:0; color:#fff; animation:none; }
