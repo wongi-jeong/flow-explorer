@@ -142,7 +142,7 @@ html[lang="ja"] .brand h1 { font-size:21px; letter-spacing:.02em; }   /* 전각 
 /* main */
 .main { display:grid; grid-template-columns:clamp(300px,27vw,392px) minmax(0,1fr) clamp(280px,22vw,340px); grid-template-rows:minmax(0,1fr); gap:10px; min-height:0; }
 .side { grid-column:1; grid-row:1; }
-.stage { grid-column:2; grid-row:1; position:relative; }
+.stage { grid-column:2; grid-row:1; position:relative; container:stage / inline-size; }   /* 위 막대가 뷰포트가 아니라 이 칸의 너비를 본다 */
 .detail { grid-column:3; grid-row:1; }
 
 /* flow list */
@@ -287,7 +287,7 @@ body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s
 .stage .bar.foot .cap { flex:1 1 0; min-width:0; }
 .spacer { flex:1; }
 .legend { display:flex; gap:14px; align-items:center; font-size:12px; color:var(--muted); letter-spacing:.03em; }
-.legend span { display:flex; align-items:center; gap:6px; }
+.legend span { display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .btn { border:1.2px solid var(--line); background:var(--panel); color:var(--ink); font-size:12.5px; font-weight:800; letter-spacing:.06em; padding:7px 14px; border-radius:2px; cursor:pointer; white-space:nowrap; }
 .btn:hover { background:var(--panel-2); }
 .btn.pri { background:var(--btn); border-color:var(--btn); color:#fff; min-width:100px; }
@@ -297,10 +297,11 @@ body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s
 .kbd { font-size:11.5px; color:var(--faint); letter-spacing:.03em; }
 .view { position:relative; flex:1; min-height:0; overflow:hidden; background-color:var(--panel);
   background-image:linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size:28px 28px; }
-#net { position:absolute; left:0; right:0; bottom:0; top:50px; width:100%; height:calc(100% - 50px); display:block; }
+/* --bar-h: 구성도 칸 위 막대의 높이. 막대가 두 줄이 되면 fitBar()가 늘린다 */
+#net { position:absolute; left:0; right:0; bottom:0; top:var(--bar-h, 50px); width:100%; height:calc(100% - var(--bar-h, 50px)); display:block; }
 #net.zoomed { cursor:grab; touch-action:none; }
 #net.drag { cursor:grabbing; }
-#seqWrap { position:absolute; left:0; right:0; bottom:0; top:50px; overflow:auto; display:none; }
+#seqWrap { position:absolute; left:0; right:0; bottom:0; top:var(--bar-h, 50px); overflow:auto; display:none; }
 #seqWrap svg { display:block; }
 #seqHead { position:sticky; top:0; z-index:2; background:var(--panel); border-bottom:1px solid var(--rule); }
 .view.seq #net { display:none; }
@@ -437,6 +438,27 @@ table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:fix
 col.c-no { width:52px; } col.c-tm { width:78px; } col.c-ad { width:15%; } col.c-p { width:74px; } col.c-sz { width:80px; }
 .stage .bar.top { flex-wrap:nowrap; }
 .vlg { margin-left:6px; font-size:12px; font-weight:600; pointer-events:none !important; }
+/* 단추의 아이콘(.ic)은 칸이 좁을 때만 글자(.lb) 대신 보인다 */
+.stage .bar.top .btn { display:inline-flex; align-items:center; justify-content:center; gap:5px; }
+.stage .bar.top .btn .ic { display:none; width:16px; height:16px; flex:none; }
+.stage.max .bar.top .i-max, .stage:not(.max) .bar.top .i-min { display:none !important; }
+/* 칸 너비에 따라 세 단계로 줄인다(컨테이너 쿼리). 1) 범례를 숨기고 간격을 줄인다 2) 글자 대신 아이콘 3) 단추를 탭 아래 줄로 내린다 */
+@container stage (max-width: 700px) {
+  .stage .bar.top { gap:6px; }
+  .stage .bar.top .vlg { display:none; }
+  .stage .bar.top .btn { padding:6px 8px; letter-spacing:.02em; }
+  .stage .bar.top .seg button { padding:6px 10px; letter-spacing:.02em; }
+}
+@container stage (max-width: 540px) {
+  .stage .bar.top .btn .lb { display:none; }
+  .stage .bar.top .btn .ic { display:block; }
+  .stage .bar.top .btn.sq { min-width:34px; }
+}
+@container stage (max-width: 400px) {
+  .stage .bar.top { flex-wrap:wrap; row-gap:0; }
+  .stage .bar.top .spacer { flex:1 0 100%; height:0; }
+  .stage .bar.top .spacer ~ * { margin-top:6px; }
+}
 @media (max-width: 1560px) { .legend .lg-bg { display:none; } }
 @media (max-width: 640px) { .vlg { display:none; } }
 .legend .lg { display:inline-block; width:22px; height:0; border-top:3px solid; vertical-align:middle; }
@@ -479,6 +501,14 @@ tbody tr.cur td { background:var(--tint); }
   .prog { text-align:left; margin-left:0; }
   .cap { flex-basis:100%; text-align:left; }
   .btn { padding:6px 9px; }
+  /* 재생 단추 줄과 지금 단계 설명을 각각 한 줄로 */
+  .stage .bar.foot .ctl { flex:1 1 100%; }
+  .stage .bar.foot .cap { flex-basis:100%; }
+}
+@media (max-width: 420px) {
+  .stage .bar.foot .ctl { gap:5px; flex-wrap:wrap; row-gap:6px; }
+  .stage .bar.foot .btn { padding:6px 7px; letter-spacing:.02em; }
+  .stage .bar.foot .btn.pri { min-width:0; }
 }
 /* 데이터 폴더의 CSS(data.json의 "css")가 여기 들어간다. 엔진 CSS 뒤라서 같은 변수를 덮어쓴다. */
 /*@@THEME@@*/
@@ -556,11 +586,11 @@ tbody tr.cur td { background:var(--tint); }
           <span class="lg-bg"><i class="lg b"></i>배경 연결</span>
         </div>
         <div class="spacer"></div>
-        <button type="button" class="btn sq on" id="bFollow" title="단계마다 보내는 곳과 받는 곳으로 확대 (C)">따라가기</button>
+        <button type="button" class="btn sq on" id="bFollow" title="단계마다 보내는 곳과 받는 곳으로 확대 (C)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></svg><span class="lb">따라가기</span></button>
         <button type="button" class="btn sq" id="zOut" title="작게 (-)">−</button>
-        <button type="button" class="btn sq" id="zFit" title="맞춤 (0)">맞춤</button>
+        <button type="button" class="btn sq" id="zFit" title="맞춤 (0)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"/></svg><span class="lb">맞춤</span></button>
         <button type="button" class="btn sq" id="zIn" title="크게 (+)">+</button>
-        <button type="button" class="btn sq" id="bMax" title="창 가득 보기 (F)">크게 보기</button>
+        <button type="button" class="btn sq" id="bMax" title="창 가득 보기 (F)"><svg class="ic i-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V4h6M20 14v6h-6M4 4l6 6M20 20l-6-6"/></svg><svg class="ic i-min" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4v6H4M14 20v-6h6M10 10 4 4M14 14l6 6"/></svg><span class="lb">크게 보기</span></button>
       </div>
       <div class="view" id="view">
         <svg id="net" viewBox="20 4 960 826" preserveAspectRatio="xMidYMid meet" aria-label="구성도"></svg>
@@ -1108,10 +1138,16 @@ function settleTag(now) {
   var vertical = Math.abs(b[1] - a[1]) > Math.abs(b[0] - a[0]);
   if (!now) NET.tag.classList.add("settle");
   if (vertical) {
-    // 선 오른쪽에 두면 보이는 칸(따라가는 중이면 카메라가 갈 곳) 밖으로 나갈 때만 왼쪽에 둔다
+    // 선 오른쪽에 두되, 보이는 칸(따라가는 중이면 카메라가 갈 곳) 밖으로 나가면 왼쪽에 둔다.
+    // 양쪽 다 모자라면 넓은 쪽에 두고 글자를 줄인다(전체 내용은 단계 설명의 패킷에 있다)
     tagLayout("side", NET.tagFull, 0);
     var w = +NET.tagBg.getAttribute("width"), v = st.follow && st.view === "net" ? camTarget() : vb;
-    if (x + 14 + w > v.x + v.w - 6 && x - 14 - w >= v.x + 6) tagLayout("left", NET.tagFull, 0);
+    var roomR = v.x + v.w - 6 - (x + 14), roomL = x - 14 - (v.x + 6);
+    if (w > roomR) {
+      if (w <= roomL) tagLayout("left", NET.tagFull, 0);
+      else if (roomL > roomR) tagLayout("left", NET.tagFull, Math.max(60, roomL - 10));
+      else tagLayout("side", NET.tagFull, Math.max(60, roomR - 10));
+    }
     moveTag(x, y);
   }
   else { tagLayout("up", NET.tagFull, Math.max(120, lens[seg] - 24)); moveTag(x, y + 4); }
@@ -1239,13 +1275,21 @@ $("zIn").addEventListener("click", function () { zoomCenter(1.3); });
 $("zOut").addEventListener("click", function () { zoomCenter(1 / 1.3); });
 $("zFit").addEventListener("click", function () { if (st.follow) setFollow(false); stopCam(); vb = fullVB(); applyVB(); });
 $("bFollow").addEventListener("click", function () { setFollow(!st.follow); });
-var stage = $("stage"), bMax = $("bMax");
+var stage = $("stage"), bMax = $("bMax"), bMaxLb = bMax.querySelector(".lb");
 function toggleMax() {
   stage.classList.toggle("max");
-  bMax.textContent = ui(stage.classList.contains("max") ? "원래대로" : "크게 보기");
+  bMaxLb.textContent = ui(stage.classList.contains("max") ? "원래대로" : "크게 보기");
+  fitBar();
   retrigger($("view"), "vfade");
   SEQ.sc = -1; st.camKey = ""; renderAll(false);
 }
+// 구성도 칸 위 막대의 줄임(범례 숨김 → 아이콘 → 둘째 줄)은 CSS 컨테이너 쿼리가 칸 너비를 보고 한다.
+// 여기서는 막대가 두 줄이 됐을 때 그림과 시퀀스가 막대 아래에서 시작하도록 높이만 넘긴다(--bar-h)
+function fitBar() {
+  var bar = stage.querySelector(".bar.top");
+  stage.style.setProperty("--bar-h", Math.max(50, bar.offsetHeight - 2) + "px");
+}
+if (window.ResizeObserver) new ResizeObserver(fitBar).observe(stage);   // 창뿐 아니라 칸 너비가 바뀔 때마다
 bMax.addEventListener("click", toggleMax);
 
 /* ---------------- 시퀀스 ---------------- */
@@ -1713,7 +1757,8 @@ function setLang(l, save) {
   UI_ATTR.forEach(function (x) { x[0].setAttribute(x[1], ui(x[2])); });
   $("langCode").textContent = LANG_NAME[l] || l.toUpperCase();
   $("langMenu").querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-checked", String(b.getAttribute("data-lang") === l)); });
-  bMax.textContent = ui(stage.classList.contains("max") ? "원래대로" : "크게 보기");
+  bMaxLb.textContent = ui(stage.classList.contains("max") ? "원래대로" : "크게 보기");
+  fitBar();   // 단추 글자가 언어마다 길이가 다르다
   setPlaying(st.playing);
   if (save) { try { localStorage.setItem("flow-explorer:lang", l); } catch (e) {} }
   NET.topo = null; SEQ.sc = -1; st.camKey = "";   // 구성도와 시퀀스를 새 글자로 다시 그린다
@@ -1746,8 +1791,10 @@ $("langMenu").addEventListener("keydown", function (e) {
 document.addEventListener("click", function (e) { if (!$("langMenu").hidden && !e.target.closest("#lang")) langOpen(false); });
 
 var rt = 0;
-window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { fitTabs(); if (st.view === "seq") { SEQ.sc = -1; renderSeq(false); } else { st.camKey = ""; moveCam(false); } }, 150); });
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTabs);   // 글꼴이 들어오면 탭 너비가 바뀐다
+// 칸 너비가 바뀌면 탭과 막대를 다시 맞추고, 그림 칸 크기가 바뀌었을 수 있으니 카메라·시퀀스를 다시 그린다
+function refit() { fitTabs(); fitBar(); if (st.view === "seq") { SEQ.sc = -1; renderSeq(false); } else { st.camKey = ""; moveCam(false); } }
+window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(refit, 150); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);   // 글꼴이 들어오면 글자 너비가 바뀐다
 
 renderLangMenu();
 setLang(pickLang(), false);
