@@ -83,10 +83,11 @@ code { font-family:var(--font); color:var(--ink-strong); }
 .top { flex-direction:row; align-items:center; gap:24px; padding:12px 18px 15px; overflow:visible; position:relative; z-index:20; }   /* 언어 메뉴가 아래 패널 위에 뜨게 */
 .logo { flex:none; }
 .logo .lg-bg { fill:var(--btn); }
-.logo .lg-box { fill:none; stroke:#fff; stroke-width:2.4; }
-.logo .lg-q, .logo .lg-s { fill:none; stroke-width:2.4; stroke-linejoin:round; }
-.logo .lg-q { stroke:var(--req); }
-.logo .lg-s { stroke:color-mix(in srgb, var(--resp) 45%, #fff); }
+.logo .lg-link { fill:none; stroke:#fff; stroke-width:2.4; stroke-linecap:round; }
+.logo .lg-node { fill:#fff; }
+.logo .lg-q, .logo .lg-s { stroke:var(--btn); stroke-width:1.6; }   /* 패킷 점: 선 위에 떠 보이게 배경색 테두리 */
+.logo .lg-q { fill:var(--req); }
+.logo .lg-s { fill:color-mix(in srgb, var(--resp) 45%, #fff); }
 .brand h1 { font-size:24px; font-weight:800; letter-spacing:.04em; color:var(--ink); line-height:1.1; text-wrap:balance; word-break:auto-phrase; }
 html[lang="ja"] .brand h1 { font-size:21px; letter-spacing:.02em; }   /* 전각 글자는 같은 크기에서 더 넓다 */
 .brand { flex-shrink:0; max-width:30vw; }   /* 단계를 넘길 때 제목 칸이 줄었다 늘었다 하지 않게 */
@@ -526,9 +527,10 @@ tbody tr.cur td { background:var(--tint); }
   <header class="top panel">
     <svg class="logo" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
       <rect class="lg-bg" width="44" height="44" rx="11"/>
-      <g class="lg-box"><rect x="9" y="9.5" width="11" height="9" rx="1.8"/><rect x="24" y="9.5" width="11" height="9" rx="1.8"/><rect x="16.5" y="25.5" width="11" height="9" rx="1.8"/></g>
-      <path class="lg-s" d="M29.5 18.5 V22 H22"/>
-      <path class="lg-q" d="M14.5 18.5 V22 H22 V25.5"/>
+      <path class="lg-link" d="M14 14 H30 M14 30 H30 M14 14 V30 M30 14 V30"/>
+      <g class="lg-node"><rect x="9.5" y="9.5" width="9" height="9" rx="2.4"/><rect x="25.5" y="9.5" width="9" height="9" rx="2.4"/><rect x="9.5" y="25.5" width="9" height="9" rx="2.4"/><rect x="25.5" y="25.5" width="9" height="9" rx="2.4"/></g>
+      <circle class="lg-q" cx="22" cy="14" r="3.4"/>
+      <circle class="lg-s" cx="30" cy="22" r="3.4"/>
     </svg>
     <div class="brand">
       <h1>%%TITLE%%</h1>
