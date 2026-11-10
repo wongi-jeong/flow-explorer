@@ -314,6 +314,9 @@ body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s
 .cap .h { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:15px; font-weight:800; letter-spacing:.01em; color:var(--ink-strong); }
 .cap .h .no { vertical-align:middle; margin-right:7px; }
 .cap .m { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; color:var(--muted); margin-top:3px; letter-spacing:.02em; }
+/* 자막의 "구간 N"은 작은 칩으로, 구간 제목은 진하게 — 뒤따르는 경로·프로토콜과 구분되게 */
+.cap .m .cgk { display:inline-block; vertical-align:1px; padding:0 5px; margin-right:6px; border:1px solid var(--line); border-radius:2px; font-size:10.5px; font-weight:800; line-height:16px; color:var(--ink-2); }
+.cap .m .cgt { font-weight:700; color:var(--ink-2); }
 .stage.max { position:fixed; inset:0; z-index:50; border:0; border-radius:0; }
 
 /* network svg */
@@ -699,7 +702,7 @@ var UI_TR = { ja:{
   "호출 · 같은 프로세스":"呼び出し · 同じプロセス", "패킷":"パケット",
   " · 구간 {0}개 · 단계 {1}개":" · {0}区間 · {1}ステップ", "열어야 할 방화벽":"開放が必要なファイアウォール",
   "구간 {0} / {1}":"区間 {0} / {1}", "번호 {0}":"番号 {0}", "단계 {0} / {1} · 번호 {2}":"ステップ {0} / {1} · 番号 {2}",
-  "프로토콜":"プロトコル", "포트":"ポート", "방화벽":"ファイアウォール",
+  "프로토콜":"プロトコル", "호출":"呼び出し", "포트":"ポート", "방화벽":"ファイアウォール",
   "지금 보는 흐름 · {0}":"表示中のフロー · {0}", "개요 · 구간 {0}개 · 단계 {1}개":"概要 · {0}区間 · {1}ステップ",
   "구간 {0}/{1} {2} · 단계 {3}/{4}":"区間 {0}/{1} {2} · ステップ {3}/{4}", "시작 전":"開始前",
   "구간 {0} / {1} · 단계 {2} / {3}":"区間 {0}/{1} · ステップ {2}/{3}", " · 번호 {0}~{1}":" · 番号 {0}~{1}",
@@ -1550,8 +1553,13 @@ function renderList() {
 }
 var det = $("det"), detH = $("detH");
 // 실제로 오가는 패킷(HTTP 요청줄·응답, SQL 등). 같은 프로세스 안의 호출은 '호출'로 적는다.
+// 같은 프로세스 안의 호출인지: 단계의 pr 또는 패킷의 프로토콜이 META.inproc(기본 JVM, JDBC)에 있으면 참
+function isInproc(s) {
+  var pk = (PKT[SC[st.sc].tp] || {})[s.n], names = META.inproc || ["JVM", "JDBC"];
+  return names.indexOf(s.pr) >= 0 || !!(pk && names.indexOf(pk[0]) >= 0);
+}
 function pktBox(s) {
-  var pk = (PKT[SC[st.sc].tp] || {})[s.n], inproc = pk && (META.inproc || ["JVM", "JDBC"]).indexOf(pk[0]) >= 0;
+  var pk = (PKT[SC[st.sc].tp] || {})[s.n], inproc = isInproc(s);
   var body = pk ? esc(pk[1]) : s.info;
   return '<div class="pkt-box"><div class="ph"><span>' + ui(inproc ? "호출 · 같은 프로세스" : "패킷") + "</span><span>" + esc(pk ? pk[0] : s.pr) +
     '</span></div><code>' + body + "</code></div>";
@@ -1585,8 +1593,9 @@ function renderDetail() {
     "<h3>" + esc(s.lab) + '</h3><span class="chip ' + s.k + '">' + ui(s.k === "q" ? "요청" : "응답") + "</span>" +
     '<div class="route">' + esc(nodeName(s.f)) + " → " + esc(nodeName(s.t)) + "</div>" +
     "<p>" + s.d + "</p>" +
-    '<dl class="kv"><dt>' + ui("프로토콜") + "</dt><dd>" + esc(s.pr) + "</dd><dt>" + ui("포트") + "</dt><dd>" + esc(s.po) + "</dd>" +
-    "</dl>" + '<dl class="kv fw"><dt>' + ui("방화벽") + "</dt><dd>" + fwStep(s) + "</dd></dl>" + pktBox(s);
+    (isInproc(s)
+      ? '<dl class="kv"><dt>' + ui("호출") + "</dt><dd>" + esc(s.pr) + "</dd></dl>"     // 같은 프로세스 안의 호출: 프로토콜·포트가 아님
+      : '<dl class="kv"><dt>' + ui("프로토콜") + "</dt><dd>" + esc(s.pr) + "</dd><dt>" + ui("포트") + "</dt><dd>" + esc(s.po) + "</dd></dl>") + '<dl class="kv fw"><dt>' + ui("방화벽") + "</dt><dd>" + fwStep(s) + "</dd></dl>" + pktBox(s);
 }
 function renderHeader() {
   var sc = SC[st.sc], n = sc.st.length, k = st.i + 1, gN = sc.groups.length, gk = st.i < 0 ? -1 : sc.gi[st.i];
@@ -1623,7 +1632,7 @@ function renderCap() {
   }
   var s = cur()[st.i], gk = sc.gi[st.i];
   cap.innerHTML = '<div class="h"><span class="no ' + s.k + '">' + s.n + "</span>" + esc(s.lab) + "</div>" +
-    '<div class="m">' + uif("구간 {0}", gk + 1) + " " + esc(sc.groups[gk].t) + " · " + esc(shortName(s.f)) + " → " + esc(shortName(s.t)) + " · " +
+    '<div class="m"><span class="cgk">' + uif("구간 {0}", gk + 1) + '</span><span class="cgt">' + esc(sc.groups[gk].t) + "</span> · " + esc(shortName(s.f)) + " → " + esc(shortName(s.t)) + " · " +
     esc(s.pr) + " · " + esc(s.po) + " · " + esc(fwText(s)) + "</div>";
 }
 function jumpGroup(d) {
