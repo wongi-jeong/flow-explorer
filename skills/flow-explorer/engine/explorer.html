@@ -260,7 +260,7 @@ path.cur.s { animation:kfDash 1.2s linear infinite; }
 .btn.pri.playing { animation:kfPlay 1.6s ease-out infinite; }
 .segs i { transition:background-color .3s; }
 body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s, color .3s, border-color .3s; }
-.iso .f, .iso .scr, .grp rect, .grp .bd, .grp .gi, .lk { transition:fill .3s, stroke .3s, opacity .35s; }
+.iso .f, .iso .scr, .grp rect, .grp .bd, .lk { transition:fill .3s, stroke .3s, opacity .35s; }
 .node:not(.on):hover .iso .lift { transform:translateY(-3px); }
 .srow { transition:opacity .3s; }
 @media (prefers-reduced-motion: reduce) { *, *::before { animation:none !important; transition:none !important; } }
@@ -329,12 +329,13 @@ body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s
 .grp.n .bd { stroke:var(--fainter); stroke-dasharray:6 5; }
 .grp.d rect { fill:var(--panel); }
 .grp.d .bd { stroke:var(--fainter); stroke-dasharray:6 5; }
-.grp text { font-size:15px; font-weight:800; letter-spacing:.03em; fill:var(--ink); }
-.grp .gi { fill:none; stroke:var(--ink-2); stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+/* 이름표 층(.grpl)은 선 위에 그린다. 글자 둘레를 바탕색으로 둘러 아래로 지나는 선을 가린다 */
+.grpl text { font-size:15px; font-weight:800; letter-spacing:.03em; fill:var(--ink); paint-order:stroke; stroke:var(--panel); stroke-width:6px; stroke-linejoin:round; }
+.grpl .gi { fill:none; stroke:var(--ink-2); stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; transition:stroke .3s; }
 .grp.on .bd { stroke:var(--req); stroke-width:2.8; stroke-dasharray:none; }
 .grp.on.s .bd { stroke:var(--resp); }
-.grp.on .gi { stroke:var(--req); }
-.grp.on.s .gi { stroke:var(--resp); }
+.grpl.on .gi { stroke:var(--req); }
+.grpl.on.s .gi { stroke:var(--resp); }
 .lk { fill:none; stroke:var(--link); stroke-width:1.8; }
 .lk.seen { stroke:var(--seen); stroke-width:2.4; }
 .lk.bg { stroke-dasharray:2 5; stroke-linecap:round; }
@@ -987,7 +988,7 @@ function badgeObstacles() {
   G.forEach(function (g) {
     var c = [[g.x, g.y], [g.x + g.w, g.y], [g.x + g.w, g.y + g.h], [g.x, g.y + g.h]];
     for (var k = 0; k < 4; k++) segs.push([c[k], c[(k + 1) % 4]]);
-    var t = $(g.id) && $(g.id).querySelector("text");
+    var t = $(g.id + "_lb") && $(g.id + "_lb").querySelector("text");
     if (t) { var b = t.getBBox(); boxes.push([b.x - 3, b.y - 3, b.x + b.width + 3, b.y + b.height + 3]); }
   });
   return { segs:segs, dots:dots, boxes:boxes };
@@ -1025,8 +1026,8 @@ var GICON = {
 // 윗변을 세로로 지나는 선이 이름표와 겹치면 이름표를 그 선 오른쪽으로 민다(자리가 없으면 그대로 둔다).
 function layoutGrps() {
   G.forEach(function (g) {
-    var gg = $(g.id); if (!gg) return;
-    var t = gg.querySelector("text"), ic = gg.querySelector(".gi"), w = 0;
+    var gg = $(g.id), lb = $(g.id + "_lb"); if (!gg || !lb) return;
+    var t = lb.querySelector("text"), ic = lb.querySelector(".gi"), w = 0;
     try { w = t.getComputedTextLength(); } catch (e) {}
     if (!w) w = (t.textContent || "").length * 12;
     var len = (ic ? 22 : 0) + w, x0 = g.x + 16, cross = [];
@@ -1052,18 +1053,18 @@ function buildNet() {
   while (net.firstChild) net.removeChild(net.firstChild);
   markers(net);
   G.forEach(function (g) {
-    var gg = el("g", { "class":"grp " + g.cls, id:g.id }, net), tx = g.x + 16;
+    var gg = el("g", { "class":"grp " + g.cls, id:g.id }, net);
     el("rect", { x:g.x, y:g.y, width:g.w, height:g.h, rx:3 }, gg);
     el("path", { "class":"bd" }, gg);
-    if (g.ic && GICON[g.ic]) {   // 이름 앞의 종류 아이콘(16칸 선 그림)
-      el("path", { "class":"gi", d:GICON[g.ic], transform:"translate(" + tx + "," + (g.y - 8) + ")" }, gg);
-      tx += 22;
-    }
-    el("text", { x:tx, y:g.y + 5 }, gg).textContent = g.t;
   });
-  layoutGrps();
   NET.links = {};
   Object.keys(L).forEach(function (id) { NET.links[id] = el("path", { "class":lkCls(id), d:pathD(L[id].p) }, net); });
+  G.forEach(function (g) {   // 이름표는 선보다 위에: 비켜날 자리가 없는 좁은 상자에서도 글자가 선에 묻히지 않는다
+    var lb = el("g", { "class":"grpl", id:g.id + "_lb" }, net);
+    if (g.ic && GICON[g.ic]) el("path", { "class":"gi", d:GICON[g.ic] }, lb);   // 이름 앞의 종류 아이콘(16칸 선 그림)
+    el("text", { y:g.y + 5 }, lb).textContent = g.t;
+  });
+  layoutGrps();
   NET.halo = el("path", { "class":"halo", d:"" }, net);
   NET.cur = el("path", { "class":"cur", d:"" }, net);
   NET.fx = el("path", { "class":"fx", d:"" }, net);
@@ -1100,7 +1101,7 @@ function renderNet(animate) {
   var steps = cur(), i = st.i, sc = SC[st.sc];
   Object.keys(NET.links).forEach(function (id) { NET.links[id].setAttribute("class", lkCls(id)); });
   Object.keys(NET.nodes).forEach(function (id) { NET.nodes[id].setAttribute("class", "node"); });
-  G.forEach(function (g) { $(g.id).setAttribute("class", "grp " + g.cls); });
+  G.forEach(function (g) { $(g.id).setAttribute("class", "grp " + g.cls); $(g.id + "_lb").setAttribute("class", "grpl"); });
   var seenTo = i < 0 ? steps.length : i;
   for (var j = 0; j < seenTo; j++) NET.links[steps[j].l].setAttribute("class", "lk seen");
   if (i < 0) {
@@ -1122,7 +1123,7 @@ function renderNet(animate) {
   NET.fx.setAttribute("class", "fx " + s.k);
   NET.pkt.setAttribute("class", "pkt " + s.k);
   [s.f, s.t].forEach(function (id, idx) {
-    if (N[id].grp) $(N[id].grp).setAttribute("class", "grp b on " + s.k);
+    if (N[id].grp) { $(N[id].grp).setAttribute("class", "grp b on " + s.k); $(N[id].grp + "_lb").setAttribute("class", "grpl on " + s.k); }
     else NET.nodes[id].setAttribute("class", "node on " + s.k + (idx === 0 ? " from" : " to"));
   });
   moveCam(animate);
