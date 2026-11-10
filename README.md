@@ -5,7 +5,7 @@
 <h2 align="center">flow-explorer</h2>
 
 <p align="center">
-  <a href=".claude-plugin/plugin.json"><img src="https://img.shields.io/badge/version-0.2.4-1a1a1a?style=for-the-badge" alt="version 0.2.4"></a>
+  <a href=".claude-plugin/plugin.json"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwongi-jeong%2Fflow-explorer%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&style=for-the-badge&color=1a1a1a" alt="version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1a1a1a?style=for-the-badge" alt="MIT license"></a>
   <a href="skills/flow-explorer/SKILL.md"><img src="https://img.shields.io/badge/Claude_Code-plugin-1a1a1a?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude Code plugin"></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10+-1a1a1a?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+"></a>
