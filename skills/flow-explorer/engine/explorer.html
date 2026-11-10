@@ -331,6 +331,7 @@ body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s
 .grp.d .bd { stroke:var(--fainter); stroke-dasharray:6 5; }
 /* 이름표 층(.grpl)은 선 위에 그린다. 글자 둘레를 바탕색으로 둘러 아래로 지나는 선을 가린다 */
 .grpl text { font-size:15px; font-weight:800; letter-spacing:.03em; fill:var(--ink); paint-order:stroke; stroke:var(--panel); stroke-width:6px; stroke-linejoin:round; }
+.grpl .gib { fill:var(--panel); }
 .grpl .gi { fill:none; stroke:var(--ink-2); stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; transition:stroke .3s; }
 .grp.on .bd { stroke:var(--req); stroke-width:2.8; stroke-dasharray:none; }
 .grp.on.s .bd { stroke:var(--resp); }
@@ -1023,25 +1024,27 @@ var GICON = {
   globe:"M8 2 A6 6 0 1 0 8.01 2 Z M2 8 H14 M8 2 C5.4 4.6 5.4 11.4 8 14 M8 2 C10.6 4.6 10.6 11.4 8 14"
 };
 // 그룹 상자의 테두리를 이름표 자리만 비우고 그린다(글자 너비가 바뀌면 다시 부른다: 글꼴 로딩, 언어 전환).
-// 윗변을 세로로 지나는 선이 이름표와 겹치면 이름표를 그 선 오른쪽으로 민다(자리가 없으면 그대로 둔다).
+// 이름표는 늘 윗변 왼쪽 끝에 둔다. 윗변을 세로로 지나는 선은 이름표 층 아래라 글자 뒤로 지나가고,
+// 그 선이 아이콘 자리를 지날 때만 아이콘 뒤에 바탕(.gib)을 깐다.
 function layoutGrps() {
   G.forEach(function (g) {
     var gg = $(g.id), lb = $(g.id + "_lb"); if (!gg || !lb) return;
-    var t = lb.querySelector("text"), ic = lb.querySelector(".gi"), w = 0;
+    var t = lb.querySelector("text"), ic = lb.querySelector(".gi"), bk = lb.querySelector(".gib"), w = 0;
     try { w = t.getComputedTextLength(); } catch (e) {}
     if (!w) w = (t.textContent || "").length * 12;
-    var len = (ic ? 22 : 0) + w, x0 = g.x + 16, cross = [];
-    Object.keys(L).forEach(function (id) {
-      var q = L[id].p;
-      for (var k = 1; k < q.length; k++) {
-        var x = q[k][0];
-        if (x === q[k - 1][0] && x > g.x && x < g.x + g.w && Math.min(q[k][1], q[k - 1][1]) < g.y && Math.max(q[k][1], q[k - 1][1]) > g.y) cross.push(x);
-      }
-    });
-    cross.sort(function (m, n) { return m - n; }).forEach(function (x) {
-      if (x > x0 - 12 && x < x0 + len + 12 && x + 16 + len < g.x + g.w - 10) x0 = x + 16;
-    });
-    if (ic) ic.setAttribute("transform", "translate(" + x0 + "," + (g.y - 8) + ")");
+    var x0 = g.x + 16, len = (ic ? 22 : 0) + w;
+    if (ic) {
+      var hit = Object.keys(L).some(function (id) {
+        var q = L[id].p;
+        for (var k = 1; k < q.length; k++) {
+          var x = q[k][0];
+          if (x === q[k - 1][0] && x > x0 - 4 && x < x0 + 20 && Math.min(q[k][1], q[k - 1][1]) < g.y && Math.max(q[k][1], q[k - 1][1]) > g.y) return true;
+        }
+        return false;
+      });
+      ic.setAttribute("transform", "translate(" + x0 + "," + (g.y - 8) + ")");
+      bk.setAttribute("x", x0 - 3); bk.setAttribute("display", hit ? "" : "none");
+    }
     t.setAttribute("x", x0 + (ic ? 22 : 0));
     var a = x0 - 7, b = Math.min(x0 + len + 7, g.x + g.w - 6), x2 = g.x + g.w, y2 = g.y + g.h, r = 3;
     gg.querySelector(".bd").setAttribute("d", "M" + b + " " + g.y + " H" + (x2 - r) + " Q" + x2 + " " + g.y + " " + x2 + " " + (g.y + r) +
@@ -1061,7 +1064,10 @@ function buildNet() {
   Object.keys(L).forEach(function (id) { NET.links[id] = el("path", { "class":lkCls(id), d:pathD(L[id].p) }, net); });
   G.forEach(function (g) {   // 이름표는 선보다 위에: 비켜날 자리가 없는 좁은 상자에서도 글자가 선에 묻히지 않는다
     var lb = el("g", { "class":"grpl", id:g.id + "_lb" }, net);
-    if (g.ic && GICON[g.ic]) el("path", { "class":"gi", d:GICON[g.ic] }, lb);   // 이름 앞의 종류 아이콘(16칸 선 그림)
+    if (g.ic && GICON[g.ic]) {   // 이름 앞의 종류 아이콘(16칸 선 그림)과, 선이 지날 때만 보이는 바탕
+      el("rect", { "class":"gib", y:g.y - 9, width:23, height:18, display:"none" }, lb);
+      el("path", { "class":"gi", d:GICON[g.ic] }, lb);
+    }
     el("text", { y:g.y + 5 }, lb).textContent = g.t;
   });
   layoutGrps();
