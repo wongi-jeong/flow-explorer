@@ -53,7 +53,7 @@ TOPO.web.N = {                                            // 노드
   vm:      { grp:"g_vm", nm:"앱 서버 VM" }                 // 그룹 자체를 노드로 쓸 때(시퀀스의 참여자)
 };
 TOPO.web.G = [                                            // 그룹 상자
-  { id:"g_vm", x:300, y:180, w:500, h:360, cls:"b", t:"앱 서버 VM" }
+  { id:"g_vm", x:300, y:180, w:500, h:360, cls:"b", t:"앱 서버 VM", ic:"vm" }
 ];
 TOPO.web.L = {                                            // 선(구성도에 그리는 길). p는 꺾인 점 목록
   br_px: { a:"browser", b:"proxy", p:[[120,160],[120,260],[384,260]] },
@@ -81,6 +81,18 @@ TOPO.web.sr = { browser:"사용자", proxy:":443" };         // 시퀀스 머리
 | `n` | 바깥 영역(클라우드·망). 바탕 없이 점선 테두리 |
 | `b` | 서버·VM·프로세스. 실선 테두리와 옅은 바탕 |
 | `d` | 따로 떨어진 시스템(예: 기존 DB 서버). 점선 테두리와 불투명한 바탕(뒤로 지나는 선을 가림) |
+
+그룹 이름(`t`)은 상자 안이 아니라 윗변 선 위 왼쪽에 놓이고, 테두리는 그 자리만 끊깁니다. 윗변을 세로로 지나는 선이 이름과 겹치면 이름이 그 선 오른쪽으로 비켜납니다.
+
+| 그룹 `ic`(선택) | 이름 앞에 붙는 종류 아이콘 |
+|---|---|
+| `cloud` | 클라우드·VPC·망 |
+| `vm` | VM·서버 |
+| `cluster` | 클러스터(Kubernetes 등) |
+| `box` | 컨테이너·파드·프로세스 |
+| `globe` | 외부 서비스·따로 떨어진 시스템 |
+
+`ic`를 적지 않으면 아이콘 없이 이름만 나옵니다. 아이콘은 엔진이 그리는 단색 선 그림이라 로고 파일이 필요 없습니다.
 
 아이콘 종류(`iso[0]`): `rack`, `flat`, `db`, `laptop`, `doc`, `shield`, `funnel`, `gauge`, `archive`, `registry`, `padlock`, `toolbox`, `layers`
 표식(`iso[1]`, 선택): `key`, `lock`, `sparkle`, `code`, `arrows`, `branch`, `building`, `plug`, `check`, `bang`, `shield`, `gear`, `person`, `window`, `list`, `layers`, `down`, `gauge`, `keyhole`

@@ -9,10 +9,10 @@ TOPO.web.N = {
   postgres: { x:560, y:480, nm:"PostgreSQL", rl:"app · keycloak DB", full:"PostgreSQL (DB 서버)", al:"DB", iso:["db", "layers"], brand:"postgresql" }
 };
 TOPO.web.G = [
-  { id:"g_vpc",  x:60,  y:170, w:640, h:440, cls:"n", t:"클라우드 VPC" },
-  { id:"g_web",  x:90,  y:200, w:220, h:380, cls:"b", t:"웹 VM" },
-  { id:"g_auth", x:450, y:200, w:220, h:170, cls:"b", t:"인증 VM" },
-  { id:"g_db",   x:450, y:410, w:220, h:170, cls:"b", t:"DB VM" }
+  { id:"g_vpc",  x:60,  y:170, w:640, h:440, cls:"n", t:"클라우드 VPC", ic:"cloud" },
+  { id:"g_web",  x:90,  y:200, w:220, h:380, cls:"b", t:"웹 VM", ic:"vm" },
+  { id:"g_auth", x:450, y:200, w:220, h:170, cls:"b", t:"인증 VM", ic:"vm" },
+  { id:"g_db",   x:450, y:410, w:220, h:170, cls:"b", t:"DB VM", ic:"vm" }
 ];
 // 선은 직교 경로. 아이콘 옆은 가운데에서 36, 위는 36, 아래는 이름 밑(80)에 닿는다.
 // 아이콘 오른쪽 위는 미니 로고 자리라 선을 내지 않는다(앱 서버의 두 선은 가운데와 그 아래에서 나간다).

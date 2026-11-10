@@ -260,7 +260,7 @@ path.cur.s { animation:kfDash 1.2s linear infinite; }
 .btn.pri.playing { animation:kfPlay 1.6s ease-out infinite; }
 .segs i { transition:background-color .3s; }
 body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s, color .3s, border-color .3s; }
-.iso .f, .iso .scr, .grp rect, .lk { transition:fill .3s, stroke .3s, opacity .35s; }
+.iso .f, .iso .scr, .grp rect, .grp .bd, .grp .gi, .lk { transition:fill .3s, stroke .3s, opacity .35s; }
 .node:not(.on):hover .iso .lift { transform:translateY(-3px); }
 .srow { transition:opacity .3s; }
 @media (prefers-reduced-motion: reduce) { *, *::before { animation:none !important; transition:none !important; } }
@@ -320,13 +320,21 @@ body, .panel, .view, th, td, .sc > button, .gh { transition:background-color .3s
 .stage.max { position:fixed; inset:0; z-index:50; border:0; border-radius:0; }
 
 /* network svg */
-.grp rect { stroke-width:1.2; }
-.grp.b rect { fill:var(--grp); stroke:var(--line); }
-.grp.n rect { fill:none; stroke:var(--fainter); stroke-dasharray:6 5; }
-.grp.d rect { fill:var(--panel); stroke:var(--fainter); stroke-dasharray:6 5; }
+/* 그룹 상자: rect는 바탕만 칠하고, 테두리(.bd)는 이름표 자리를 비운 경로로 따로 그린다. 이름표(아이콘 .gi + 글자)는 윗변 선 위에 놓인다 */
+.grp rect { stroke:none; }
+.grp .bd { fill:none; stroke-width:1.2; }
+.grp.b rect { fill:var(--grp); }
+.grp.b .bd { stroke:var(--line); }
+.grp.n rect { fill:none; }
+.grp.n .bd { stroke:var(--fainter); stroke-dasharray:6 5; }
+.grp.d rect { fill:var(--panel); }
+.grp.d .bd { stroke:var(--fainter); stroke-dasharray:6 5; }
 .grp text { font-size:15px; font-weight:800; letter-spacing:.03em; fill:var(--ink); }
-.grp.on rect { stroke:var(--req); stroke-width:2.8; stroke-dasharray:none; }
-.grp.on.s rect { stroke:var(--resp); }
+.grp .gi { fill:none; stroke:var(--ink-2); stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.grp.on .bd { stroke:var(--req); stroke-width:2.8; stroke-dasharray:none; }
+.grp.on.s .bd { stroke:var(--resp); }
+.grp.on .gi { stroke:var(--req); }
+.grp.on.s .gi { stroke:var(--resp); }
 .lk { fill:none; stroke:var(--link); stroke-width:1.8; }
 .lk.seen { stroke:var(--seen); stroke-width:2.4; }
 .lk.bg { stroke-dasharray:2 5; stroke-linecap:round; }
@@ -1005,14 +1013,55 @@ function segNear(a, b, x1, y1, x2, y2) {
   }
   return false;
 }
+// 그룹 상자 이름 앞에 붙는 종류 아이콘. 16×16 칸에 그린 단색 선 그림(G의 ic)
+var GICON = {
+  cloud:"M4.6 12.6 H11.4 A3.1 3.1 0 0 0 11.9 6.5 A4.1 4.1 0 0 0 4.1 7.3 A2.7 2.7 0 0 0 4.6 12.6 Z",
+  vm:"M2.5 3 H13.5 V7.4 H2.5 Z M2.5 8.6 H13.5 V13 H2.5 Z M4.6 5.2 H5.8 M4.6 10.8 H5.8",
+  cluster:"M8 1.8 L13.4 4.9 V11.1 L8 14.2 L2.6 11.1 V4.9 Z M8 6 A2 2 0 1 0 8.01 6 Z",
+  box:"M8 2 L13.4 5 V11 L8 14 L2.6 11 V5 Z M2.6 5 L8 8 L13.4 5 M8 8 V14",
+  globe:"M8 2 A6 6 0 1 0 8.01 2 Z M2 8 H14 M8 2 C5.4 4.6 5.4 11.4 8 14 M8 2 C10.6 4.6 10.6 11.4 8 14"
+};
+// 그룹 상자의 테두리를 이름표 자리만 비우고 그린다(글자 너비가 바뀌면 다시 부른다: 글꼴 로딩, 언어 전환).
+// 윗변을 세로로 지나는 선이 이름표와 겹치면 이름표를 그 선 오른쪽으로 민다(자리가 없으면 그대로 둔다).
+function layoutGrps() {
+  G.forEach(function (g) {
+    var gg = $(g.id); if (!gg) return;
+    var t = gg.querySelector("text"), ic = gg.querySelector(".gi"), w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) {}
+    if (!w) w = (t.textContent || "").length * 12;
+    var len = (ic ? 22 : 0) + w, x0 = g.x + 16, cross = [];
+    Object.keys(L).forEach(function (id) {
+      var q = L[id].p;
+      for (var k = 1; k < q.length; k++) {
+        var x = q[k][0];
+        if (x === q[k - 1][0] && x > g.x && x < g.x + g.w && Math.min(q[k][1], q[k - 1][1]) < g.y && Math.max(q[k][1], q[k - 1][1]) > g.y) cross.push(x);
+      }
+    });
+    cross.sort(function (m, n) { return m - n; }).forEach(function (x) {
+      if (x > x0 - 12 && x < x0 + len + 12 && x + 16 + len < g.x + g.w - 10) x0 = x + 16;
+    });
+    if (ic) ic.setAttribute("transform", "translate(" + x0 + "," + (g.y - 8) + ")");
+    t.setAttribute("x", x0 + (ic ? 22 : 0));
+    var a = x0 - 7, b = Math.min(x0 + len + 7, g.x + g.w - 6), x2 = g.x + g.w, y2 = g.y + g.h, r = 3;
+    gg.querySelector(".bd").setAttribute("d", "M" + b + " " + g.y + " H" + (x2 - r) + " Q" + x2 + " " + g.y + " " + x2 + " " + (g.y + r) +
+      " V" + (y2 - r) + " Q" + x2 + " " + y2 + " " + (x2 - r) + " " + y2 + " H" + (g.x + r) + " Q" + g.x + " " + y2 + " " + g.x + " " + (y2 - r) +
+      " V" + (g.y + r) + " Q" + g.x + " " + g.y + " " + (g.x + r) + " " + g.y + " H" + a);
+  });
+}
 function buildNet() {
   while (net.firstChild) net.removeChild(net.firstChild);
   markers(net);
   G.forEach(function (g) {
-    var gg = el("g", { "class":"grp " + g.cls, id:g.id }, net);
+    var gg = el("g", { "class":"grp " + g.cls, id:g.id }, net), tx = g.x + 16;
     el("rect", { x:g.x, y:g.y, width:g.w, height:g.h, rx:3 }, gg);
-    el("text", { x:g.x + 12, y:g.y + 20 }, gg).textContent = g.t;
+    el("path", { "class":"bd" }, gg);
+    if (g.ic && GICON[g.ic]) {   // 이름 앞의 종류 아이콘(16칸 선 그림)
+      el("path", { "class":"gi", d:GICON[g.ic], transform:"translate(" + tx + "," + (g.y - 8) + ")" }, gg);
+      tx += 22;
+    }
+    el("text", { x:tx, y:g.y + 5 }, gg).textContent = g.t;
   });
+  layoutGrps();
   NET.links = {};
   Object.keys(L).forEach(function (id) { NET.links[id] = el("path", { "class":lkCls(id), d:pathD(L[id].p) }, net); });
   NET.halo = el("path", { "class":"halo", d:"" }, net);
@@ -1803,7 +1852,7 @@ document.addEventListener("click", function (e) { if (!$("langMenu").hidden && !
 
 var rt = 0;
 // 칸 너비가 바뀌면 탭과 막대를 다시 맞추고, 그림 칸 크기가 바뀌었을 수 있으니 카메라·시퀀스를 다시 그린다
-function refit() { fitTabs(); fitBar(); if (st.view === "seq") { SEQ.sc = -1; renderSeq(false); } else { st.camKey = ""; moveCam(false); } }
+function refit() { layoutGrps(); fitTabs(); fitBar(); if (st.view === "seq") { SEQ.sc = -1; renderSeq(false); } else { st.camKey = ""; moveCam(false); } }
 window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(refit, 150); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);   // 글꼴이 들어오면 글자 너비가 바뀐다
 

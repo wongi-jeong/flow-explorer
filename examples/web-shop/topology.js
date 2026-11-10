@@ -16,10 +16,10 @@ TOPO.svc.N = {
   pg:     { x:420, y:850, nm:"DB 주 서버", rl:"PostgreSQL · :5432", full:"DB 주 서버 (PostgreSQL)", al:"주 DB", iso:["db", "layers"], brand:"postgresql" }
 };
 TOPO.svc.G = [
-  { id:"s_vpc", x:60,  y:230, w:810, h:760, cls:"n", t:"클라우드 VPC" },
-  { id:"s_k8s", x:300, y:490, w:540, h:250, cls:"b", t:"클러스터" },
-  { id:"s_pod", x:330, y:520, w:480, h:190, cls:"b", t:"API 파드 (JVM)" },
-  { id:"s_db",  x:90,  y:770, w:440, h:190, cls:"b", t:"DB VM" }
+  { id:"s_vpc", x:60,  y:230, w:810, h:760, cls:"n", t:"클라우드 VPC", ic:"cloud" },
+  { id:"s_k8s", x:300, y:490, w:540, h:250, cls:"b", t:"클러스터", ic:"cluster" },
+  { id:"s_pod", x:330, y:520, w:480, h:190, cls:"b", t:"API 파드 (JVM)", ic:"box" },
+  { id:"s_db",  x:90,  y:770, w:440, h:190, cls:"b", t:"DB VM", ic:"vm" }
 ];
 // 선은 직교 경로. 아이콘 옆은 가운데에서 36, 위는 36, 아래는 이름 밑(80)에 닿는다(작은 아이콘은 30 · 30 · 74).
 // 아이콘 오른쪽 위는 미니 로고 자리라 선을 내지 않는다.
@@ -50,10 +50,10 @@ TOPO.job.N = {
   mail:   { x:770, y:660, nm:"메일 서비스", rl:"SendGrid API", full:"메일 서비스 (SendGrid)", al:"메일", sm:1, iso:["rack", "building"], brand:"sendgrid" }
 };
 TOPO.job.G = [
-  { id:"j_vpc", x:60,  y:50,  w:580, h:750, cls:"n", t:"클라우드 VPC" },
-  { id:"j_db",  x:90,  y:80,  w:180, h:190, cls:"b", t:"DB VM" },
-  { id:"j_vm",  x:330, y:80,  w:280, h:690, cls:"b", t:"작업 VM" },
-  { id:"j_ext", x:680, y:560, w:180, h:200, cls:"d", t:"외부 서비스" }
+  { id:"j_vpc", x:60,  y:50,  w:580, h:750, cls:"n", t:"클라우드 VPC", ic:"cloud" },
+  { id:"j_db",  x:90,  y:80,  w:180, h:190, cls:"b", t:"DB VM", ic:"vm" },
+  { id:"j_vm",  x:330, y:80,  w:280, h:690, cls:"b", t:"작업 VM", ic:"vm" },
+  { id:"j_ext", x:680, y:560, w:180, h:200, cls:"d", t:"외부 서비스", ic:"globe" }
 ];
 TOPO.job.L = {
   relay_pg:    { a:"relay",  b:"pg",     p:[[414, 160], [216, 160]] },
@@ -79,11 +79,11 @@ TOPO.ci.N = {
   vault:   { x:980, y:740, nm:"비밀값 저장소", rl:"Vault · :8200", full:"비밀값 저장소 (Vault)", al:"Vault", iso:["padlock"], brand:"vault" }
 };
 TOPO.ci.G = [
-  { id:"c_gh",  x:330, y:80,  w:200, h:490, cls:"d", t:"GitHub" },
-  { id:"c_vpc", x:600, y:50,  w:490, h:830, cls:"n", t:"클라우드 VPC" },
-  { id:"c_run", x:630, y:80,  w:180, h:190, cls:"b", t:"러너 VM" },
-  { id:"c_k8s", x:630, y:380, w:430, h:190, cls:"b", t:"클러스터" },
-  { id:"c_db",  x:630, y:660, w:180, h:190, cls:"b", t:"DB VM" }
+  { id:"c_gh",  x:330, y:80,  w:200, h:490, cls:"d", t:"GitHub", ic:"globe" },
+  { id:"c_vpc", x:600, y:50,  w:490, h:830, cls:"n", t:"클라우드 VPC", ic:"cloud" },
+  { id:"c_run", x:630, y:80,  w:180, h:190, cls:"b", t:"러너 VM", ic:"vm" },
+  { id:"c_k8s", x:630, y:380, w:430, h:190, cls:"b", t:"클러스터", ic:"cluster" },
+  { id:"c_db",  x:630, y:660, w:180, h:190, cls:"b", t:"DB VM", ic:"vm" }
 ];
 TOPO.ci.L = {
   dev_github:     { a:"dev",     b:"github", p:[[206, 160], [394, 160]] },
@@ -113,11 +113,11 @@ TOPO.obs.N = {
   dbvm:    { grp:"o_db", nm:"DB VM" }
 };
 TOPO.obs.G = [
-  { id:"o_vpc", x:60,  y:60,  w:770, h:770, cls:"n", t:"클라우드 VPC" },
-  { id:"o_k8s", x:90,  y:90,  w:200, h:190, cls:"b", t:"클러스터" },
-  { id:"o_db",  x:90,  y:600, w:200, h:190, cls:"b", t:"DB VM" },
-  { id:"o_vm",  x:350, y:90,  w:450, h:710, cls:"b", t:"관측 VM" },
-  { id:"o_ext", x:920, y:590, w:160, h:200, cls:"d", t:"외부 서비스" }
+  { id:"o_vpc", x:60,  y:60,  w:770, h:770, cls:"n", t:"클라우드 VPC", ic:"cloud" },
+  { id:"o_k8s", x:90,  y:90,  w:200, h:190, cls:"b", t:"클러스터", ic:"cluster" },
+  { id:"o_db",  x:90,  y:600, w:200, h:190, cls:"b", t:"DB VM", ic:"vm" },
+  { id:"o_vm",  x:350, y:90,  w:450, h:710, cls:"b", t:"관측 VM", ic:"vm" },
+  { id:"o_ext", x:920, y:590, w:160, h:200, cls:"d", t:"외부 서비스", ic:"globe" }
 ];
 TOPO.obs.L = {
   api_otel:  { a:"api",     b:"otel",  p:[[226, 170], [414, 170]] },
